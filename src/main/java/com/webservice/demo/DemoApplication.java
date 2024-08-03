@@ -17,4 +17,9 @@ public class DemoApplication {
 	public String sayHello() {
 		return "Hello, World!";
 	}
+
+	@GetMapping("hey")
+	public String hey() {
+		return "hey! ci/cd works! how time has changed!";
+	}
 }
