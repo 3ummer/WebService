@@ -22,12 +22,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: packaged-application
-          path: target/*.jar
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -42,6 +36,16 @@ jobs:
         run: |
           cd frontend/webservice
           npm run build
+
+      - name: Archive Production Artifacts
+        run: |
+          tar -czf deploy.tar.gz frontend/webservice/build/ target/*.jar
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packaged-application
+          path: deploy.tar.gz
 
   deploy:
     needs: build
@@ -62,23 +66,34 @@ jobs:
           echo "$DEPLOY_KEY" >> $HOME/key.pem
           chmod 400 $HOME/key.pem
 
-      - name: Copy JAR to EC2
+      - name: Copy Archive to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ubuntu
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "target/*.jar"
+          source: "target/deploy.tar.gz"
           target: "/home/ubuntu/deployment/"
 
-      - name: Copy Frontend to EC2
-        uses: appleboy/scp-action@master
+#      - name: Copy Frontend to EC2
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ secrets.DEPLOY_HOST }}
+#          username: ubuntu
+#          key: ${{ secrets.DEPLOY_KEY }}
+#          source: "frontend/webservice/build"
+#          target: "/home/ubuntu/deployment/"
+
+      - name: Extract Archive on EC2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ubuntu
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "frontend/webservice/build/*"
-          target: "/home/ubuntu/deployment/"
+          script: |
+            cd /home/ubuntu/deployment
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
 
       - name: Connect SSH and Restart Services
         run: |
