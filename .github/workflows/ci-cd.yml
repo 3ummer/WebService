@@ -43,10 +43,6 @@ jobs:
           cd frontend/webservice
           npm run build
 
-      - name: Archive Build Directory
-        run: |
-          cd frontend/webservice
-          tar -czf frontend.tar.gz build/
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -81,19 +77,8 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ubuntu
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "frontend/webservice/build"
+          source: "frontend/webservice/build/*"
           target: "/home/ubuntu/deployment/"
-
-      - name: Extract Frontend on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ubuntu
-          key: ${{ secrets.DEPLOY_KEY }}
-          script: |
-            cd /home/ubuntu/deployment
-            tar -xzf frontend.tar.gz
-            rm frontend.tar.gz
 
       - name: Connect SSH and Restart Services
         run: |
