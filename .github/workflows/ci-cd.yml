@@ -81,8 +81,8 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ubuntu
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "frontend/webservice/frontend.tar.gz"
-          target: "/home/ubuntu/deployment"
+          source: "frontend/webservice/build"
+          target: "/home/ubuntu/deployment/"
 
       - name: Extract Frontend on EC2
         uses: appleboy/ssh-action@master
