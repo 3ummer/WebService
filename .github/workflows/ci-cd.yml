@@ -56,7 +56,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: packaged-application
-          path: target/
 
       - name: Setup key
         id: setup-key
@@ -72,17 +71,8 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ubuntu
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "target/deploy.tar.gz"
+          source: "deploy.tar.gz"
           target: "/home/ubuntu/deployment/"
-
-#      - name: Copy Frontend to EC2
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.DEPLOY_HOST }}
-#          username: ubuntu
-#          key: ${{ secrets.DEPLOY_KEY }}
-#          source: "frontend/webservice/build"
-#          target: "/home/ubuntu/deployment/"
 
       - name: Extract Archive on EC2
         uses: appleboy/ssh-action@master
